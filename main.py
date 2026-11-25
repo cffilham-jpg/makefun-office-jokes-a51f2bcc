@@ -28,11 +28,16 @@ def _resolve_output_dir() -> Path:
 def validate(path: Path) -> None:
     data = path.read_bytes()
     text = data.decode("utf-8")
-    assert text == LINE, "entry.txt content does not match LINE"
-    assert 1 <= len(text) <= CHAR_LIMIT, "line must be 1-199 chars"
-    assert "\n" not in text and "\r" not in text, "line must be a single line"
-    assert not text.endswith("\n"), "no trailing newline"
-    assert text == text.strip(), "no leading/trailing whitespace"
+    if text != LINE:
+        raise ValueError("entry.txt content differs from LINE")
+    if not 1 <= len(text) <= CHAR_LIMIT:
+        raise ValueError("entry.txt length must be between 1 and 199 characters")
+    if "\n" in text or "\r" in text:
+        raise ValueError("entry.txt must contain a single line without line breaks")
+    if text.endswith("\n"):
+        raise ValueError("entry.txt must not end with a newline")
+    if text != text.strip():
+        raise ValueError("entry.txt must not have leading or trailing whitespace")
 
 
 def main() -> None:
